@@ -1,12 +1,8 @@
-# posts/tests/test_views.py
 from django import forms
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from ..models import Group, Post
-
-User = get_user_model()
+from posts.models import Post, Group, User
 
 
 class PostPagesTests(TestCase):
@@ -88,6 +84,7 @@ class PaginatorViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        post_count = 13
         cls.user = User.objects.create(
             username='auth',
         )
@@ -96,7 +93,7 @@ class PaginatorViewsTest(TestCase):
             slug='test_slug',
             description='Тестовое описание группы',
         )
-        for i in range(13):
+        for i in range(post_count):
             Post.objects.create(
                 text=f'Пост #{i}',
                 author=cls.user,

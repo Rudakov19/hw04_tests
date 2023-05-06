@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+number_character = 15  # ограничение в количестве символов
 
 
 class Group(models.Model):
@@ -48,4 +49,4 @@ class Post(models.Model):
         verbose_name = 'Пост'
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:number_character]

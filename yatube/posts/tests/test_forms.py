@@ -1,13 +1,9 @@
-# posts/tests/tests_form.py
 from http import HTTPStatus
 
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from ..models import Group, Post
-
-User = get_user_model()
+from posts.models import Post, Group, User
 
 
 class PostFormTests(TestCase):
@@ -76,9 +72,9 @@ class PostFormTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         post = Post.objects.latest('id')
-        self.assertTrue(post.text == form_data['text'])
-        self.assertTrue(post.author == self.post_author)
-        self.assertTrue(post.group_id == form_data['group'])
+        self.assertEqual(post.text, form_data['text'])
+        self.assertEqual(post.author, self.post_author)
+        self.assertEqual(post.group_id, form_data['group'])
 
     def test_nonauthorized_user_create_post(self):
         """Проверка создания записи не авторизированным пользователем."""
@@ -96,3 +92,31 @@ class PostFormTests(TestCase):
         redirect = reverse('login') + '?next=' + reverse('posts:post_create')
         self.assertRedirects(response, redirect)
         self.assertEqual(Post.objects.count(), posts_count)
+
+    def test_authorized_user_edit_post(self):
+        """Проверка редактирования записи не авторизированным клиентом."""
+        post = Post.objects.create(
+            text='Текст поста для редактирования',
+            author=self.post_author,
+            group=self.group,
+        )
+        form_data = {
+            'text': 'Отредактированный текст поста',
+            'group': self.group.id,
+        }
+        response = self.authorized_user.post(
+            reverse(
+                'posts:post_edit',
+                args=[post.id]),
+            data=form_data,
+            follow=True
+        )
+        self.assertRedirects(
+            response,
+            reverse('posts:post_detail', kwargs={'post_id': post.id})
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        post = Post.objects.latest('id')
+        self.assertEqual(post.text, form_data['text'])
+        self.assertEqual(post.author, self.post_author)
+        self.assertEqual(post.group_id, form_data['group'])
