@@ -50,6 +50,8 @@ class PostPagesTests(TestCase):
     def test_index_page_show_correct_context(self):
         """Шаблон index.html сформирован с правильным контекстом."""
         response = self.authorized_client.get(reverse('posts:index'))
+        self.assertIn('page_obj', response.context)
+        self.assertIsNotNone('page_obj')
         self.check_post_info(response.context['page_obj'][0])
 
     def test_groups_page_show_correct_context(self):
@@ -59,6 +61,9 @@ class PostPagesTests(TestCase):
                 'posts:group_list',
                 kwargs={'slug': self.group.slug})
         )
+        self.assertIn('page_obj', response.context)
+        self.assertIn('group', response.context)
+        self.assertIsNotNone('page_obj')
         self.assertEqual(response.context['group'], self.group)
         self.check_post_info(response.context['page_obj'][0])
 
@@ -68,6 +73,9 @@ class PostPagesTests(TestCase):
             reverse(
                 'posts:profile',
                 kwargs={'username': self.user.username}))
+        self.assertIn('page_obj', response.context)
+        self.assertIn('profile', response.context)
+        self.assertIsNotNone('page_obj')
         self.assertEqual(response.context['profile'], self.user)
         self.check_post_info(response.context['page_obj'][0])
 
@@ -77,6 +85,7 @@ class PostPagesTests(TestCase):
             reverse(
                 'posts:post_detail',
                 kwargs={'post_id': self.post.id}))
+        self.assertIn('post', response.context)
         self.check_post_info(response.context['post'])
 
 

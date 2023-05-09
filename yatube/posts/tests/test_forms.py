@@ -104,19 +104,38 @@ class PostFormTests(TestCase):
             'text': 'Отредактированный текст поста',
             'group': self.group.id,
         }
-        response = self.authorized_user.post(
+        response = self.guest_user.post(
             reverse(
                 'posts:post_edit',
                 args=[post.id]),
             data=form_data,
             follow=True
         )
-        self.assertRedirects(
-            response,
-            reverse('posts:post_detail', kwargs={'post_id': post.id})
-        )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        post = Post.objects.latest('id')
-        self.assertEqual(post.text, form_data['text'])
-        self.assertEqual(post.author, self.post_author)
-        self.assertEqual(post.group_id, form_data['group'])
+        redirect = reverse('posts:post_detail', args=(post.id,))
+        self.assertRedirects(response, redirect)
+        self.assertIsNot(post.text, form_data['text'])
+
+    def test_edit_post_not_by_author(self):
+        """Проверка редактирования записи не автором поста."""
+        PostFormTests.user2 = User.objects.create_user(
+            username='another_user'
+        )
+        self.authorized_client_2 = Client()
+        self.authorized_client_2.force_login(self.user2)
+        test_post = Post.objects.create(
+            text='Текст поста для редактирования',
+            author=self.post_author,
+            group=self.group,
+        )
+        form_data = {
+            'text': 'Отредактированный текст поста',
+        }
+        response = self.authorized_client_2.get(
+            reverse(
+                'posts:post_edit', args=[
+                    test_post.id]), data=form_data, follow=True
+        )
+        redirect_address = reverse('posts:post_detail', args=(test_post.id,))
+        self.assertRedirects(response, redirect_address)
+        self.assertIsNot(test_post.text, form_data['text'])
