@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from posts.models import Post, Group, User, number_character
+from posts.models import Post, Group, User, CHARACTER_LIMIT
 
 
 class PostModelTest(TestCase):
@@ -15,7 +15,7 @@ class PostModelTest(TestCase):
 
     def test_post_str(self):
         """Проверка __str__ у post."""
-        self.assertEqual(self.post.text[:number_character], str(self.post))
+        self.assertEqual(self.post.text[:CHARACTER_LIMIT], str(self.post))
 
     def test_post_verbose_name(self):
         """Проверка verbose_name у post."""

@@ -146,14 +146,22 @@ class StaticURLTests(TestCase):
                 response = self.post_author.get(adress)
                 self.assertTemplateUsed(response, template)
 
-    """def test_reverse_uses_correct_url(self):
-        Reverse возвращает ожидаемый результат для всех url.
+    def test_reverse_uses_correct_url(self):
+        """Reverse возвращает ожидаемый результат для всех url."""
         templates_url_names = {
             reverse(
                 'posts:group_list',
                 kwargs={'slug': 'mysupergroup'}): '/group/mysupergroup/',
+            reverse(
+                'posts:profile',
+                kwargs={'username': 'admin2'}): '/profile/admin2/',
+            reverse(
+                'posts:post_detail',
+                kwargs={'post_id': '10'}): '/posts/10/',
+            reverse(
+                'posts:post_edit',
+                kwargs={'post_id': '7'}): '/posts/7/edit/',
         }
         for adress, urll in templates_url_names.items():
-            with self.subTest(adress=adress):
-                response = self.post_author.get(adress)
-                self.assertEqual(response, urll)"""
+            with self.subTest(adress=urll):
+                self.assertEqual(adress, urll)
